@@ -1,11 +1,19 @@
 const express = require("express");
 const sqlite3 = require("sqlite3"); /*importamos la libreria sqlite3*/
-const bodyParser = require("body-parser");//nos sive para leer los campos q vienen en el cuerpo de la peticion
+const bodyParser = require("body-parser");//nos sive para lee,r los campos q vienen en el cuerpo de la peticion
 const Sequelize = require("sequelize");/*importamos el ORM*/
 const methodOverride = require("method-override");
+const session = require("express-session");
+const socketio = require("socket.io");
 const app = express();
 const tasksRoutes = require("./routes/tasks_routes");
 const registrationsRoutes = require("./routes/registrations_routes");
+const sessionsRoutes = require("./routes/sessions_routes");
+const categoriesRoutes = require("./routes/categories_routes");
+
+const findUserMiddleware = require("./middlewares/find_user");
+const authUser = require("./middlewares/auth_user")
+
 
 
 //const tasks = require("./controllers/tasks");
@@ -17,6 +25,7 @@ app.use(bodyParser.urlencoded({extended: true}));//bodyparser ayuda en el analis
 app.use(methodOverride("_method"));
 
 
+
 /*empezamos por obtener un objeto que mos permita manipular la base de datos,esta operacion ademas  abre ademas la conexion automaticamente*/
 /*al crear un objeto de control de la base de datos, la conexion se abre automaticamente*/
 /*la instruccion  para abrir la conexion a nuestra base de datos es:*/
@@ -24,9 +33,18 @@ app.use(methodOverride("_method"));
                                                 /*si le ponemos :memory, al cerrar el proyecto se borra la base de dato*/
 app.set("view engine","pug");
 //app.get("/tasks",tasks.home);
+app.use(session({
+  secret:["1234hdjkwhdkj","55555jhdjkwh"],
+  saveUninitialized: false,
+  resave: false
+}));
 
+app.use(findUserMiddleware);
+app.use(authUser);
 app.use(tasksRoutes);
 app.use(registrationsRoutes);
+app.use(sessionsRoutes);
+app.use(categoriesRoutes);
 
 //instanciamos un nuevo objeto de la clase sequelize
 //const sequelize = new Sequelize("proyecto-backend",null,null,{
@@ -65,7 +83,43 @@ app.use(registrationsRoutes);
 
 // PUT http://localhost:3000/tasks/2?_method=PUT
 
-app.listen(3000);
+app.get("/",function(req,res){
+  res.render("home",{user: req.user});
+})
+
+let server = app.listen(3000);
+let io= socketio(server);
+let sockets= {};
+
+let usersCount = 0;
+
+io.on("connection",function(socket){
+  let userId = socket.request._query.loggeduser;
+  if(userId) sockets[userId] = socket;
+  console.log(sockets);
+  usersCount++;
+  io.emit("count_updated",{count: usersCount});
+
+  socket.on("new_task",function(data){
+    if (data.userId){
+      let userSocket = sockets(data.userId);
+      if (!userSocket) return;
+      userSocket.emit(new_task,data);
+    }
+  })
+
+  socket.on("disconnect",function(){
+    Object.keys(sockets).forEach(userId=>{
+      let s = sockets[userId];
+      if(s.id == socket.id) sockets[userId] = null;
+    });
+    console.log(sockets);
+    usersCount--;
+    io.emit("count_updated",{count: usersCount});
+
+  })
+});
+const client = require("./realtime/client");
 
 /*process.on("SIGINT",function(){
   console.log("adios--atte el servidor");/*al presionar control+c se cierra el servidor en el cmd e imprime el mensaje*/

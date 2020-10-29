@@ -1,15 +1,24 @@
 const Task = require("../models").Task;
+const User = require("../models").User;
 
 module.exports = {
   index: function(req,res){
     Task.findAll().then((tasks)=>{
       //res.json(tasks);
-      res.render("tasks/index",{tasks: tasks});
+      res.render("tasks/index",{tasks: req.user.tasks});
     })
   },
   show: function(req,res){
     //res.send(req.params);
-    Task.findByPk(req.params.id).then(function(task){
+    Task.findByPk(req.params.id,{
+      include: [
+        {
+          model: User,
+          as: "user"
+        },
+        "categories"
+      ]
+    }).then(function(task){
       //res.json(task);
       res.render("tasks/show",{task: task})
     })
@@ -17,7 +26,7 @@ module.exports = {
   edit: function(req,res){
     Task.findByPk(req.params.id).then(function(task){
       res.render("tasks/edit",{task: task})
-    })
+    });
   },
   destroy: function(req,res){
     Task.destroy({
@@ -30,7 +39,8 @@ module.exports = {
   },
   create: function(req,res){
     Task.create({
-      description: req.body.description
+      description: req.body.description,
+      userId: req.user.id
     }).then(result=>{
       res.json(result);
     }).catch(err=>{
@@ -44,18 +54,14 @@ module.exports = {
         id: req.params.id
       }
     }).then(function(response){
-      //  res.json(response);
       res.redirect("/tasks/"+req.params.id);
     })
   },
   new: function(req,res){
     res.render("tasks/new");
-
   }
-
   //home: function(req,res){
   //  Task.findAll().then(function(tasks){
     //  res.render("tasks/index",{tasks: tasks});
     //});
-
 };
