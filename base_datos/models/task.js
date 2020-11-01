@@ -23,11 +23,13 @@ module.exports = (sequelize, DataTypes) => {
   });
   Task.associate = function(models){
     Task.belongsTo(models.User,{
-      as: "user"
+      as: "user",
+      foreignKey: "userId"
     });
     Task.belongsToMany(models.Category,{
       through: "TaskCategories",
-      as: "categories"
+      as: "categories",
+      foreignKey: "categoryId"
     })
   };
   Task.afterCreate(function(task,options){

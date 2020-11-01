@@ -3,7 +3,7 @@ const sqlite3 = require("sqlite3"); /*importamos la libreria sqlite3*/
 const bodyParser = require("body-parser");//nos sive para lee,r los campos q vienen en el cuerpo de la peticion
 const Sequelize = require("sequelize");/*importamos el ORM*/
 const methodOverride = require("method-override");
-const session = require("express-session");
+const session = require("cookie-session");
 const socketio = require("socket.io");
 const app = express();
 const tasksRoutes = require("./routes/tasks_routes");
@@ -38,6 +38,8 @@ app.use(session({
   saveUninitialized: false,
   resave: false
 }));
+
+
 
 app.use(findUserMiddleware);
 app.use(authUser);
@@ -87,7 +89,7 @@ app.get("/",function(req,res){
   res.render("home",{user: req.user});
 })
 
-let server = app.listen(3000);
+let server = app.listen(process.env.PORT || 3000);
 let io= socketio(server);
 let sockets= {};
 
