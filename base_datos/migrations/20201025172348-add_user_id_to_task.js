@@ -8,7 +8,7 @@ module.exports = {
         model: {
           tableName: "Users"
         },
-        key: "id",
+        key: "id"
       }
     })
     //queryInterface.addColumn("tasks","userId",Sequelize.INTEGER)

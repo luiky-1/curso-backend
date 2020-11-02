@@ -9,7 +9,7 @@ if(process.env.NODE_ENV && process.env.NODE_ENV == 'production'){
 let socket = io.connect(host,{reconnect: true});
 
 socket.on("connect",function(){
-  console.log("\n\nsocket connected fron nideJS\n\n")
+  console.log("\n\nsocket connected fron NodeJS\n\n")
 })
 
 module.exports = socket;

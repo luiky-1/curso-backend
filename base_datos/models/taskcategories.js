@@ -1,4 +1,4 @@
-'use strict';
+/*'use strict';
 const {
   Model
 } = require('sequelize');
@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    static associate(models) {
+  /*  static associate(models) {
       // define association here
     }
   };
@@ -20,5 +20,16 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'TaskCategories',
   });
+  return TaskCategories;
+};*/
+'use strict';
+module.exports = (sequelize, DataTypes) => {
+  const TaskCategories = sequelize.define('TaskCategories', {
+    taskId: DataTypes.INTEGER,
+    categoryId: DataTypes.INTEGER
+  }, {});
+  TaskCategories.associate = function(models) {
+    // associations can be defined here
+  };
   return TaskCategories;
 };
