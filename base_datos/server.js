@@ -33,13 +33,17 @@ app.use(methodOverride("_method"));
                                                 /*si le ponemos :memory, al cerrar el proyecto se borra la base de dato*/
 app.set("view engine","pug");
 //app.get("/tasks",tasks.home);
-app.use(session({
+let sessionConfig = {
   secret:["1234hdjkwhdkj","55555jhdjkwh"],
   saveUninitialized: false,
   resave: false
-}));
+}
 
+if(process.env.NODE_ENV && process.env.NODE_ENV == 'production'){
+  sessionConfig['store'] = new (require('connect-pg-simple')(session))();
+}
 
+app.use(session(sessionConfig));
 
 app.use(findUserMiddleware);
 app.use(authUser);
@@ -90,8 +94,8 @@ app.get("/",function(req,res){
 })
 
 let server = app.listen(process.env.PORT || 3000);
-let io= socketio(server);
-let sockets= {};
+let io = socketio(server);
+let sockets = {};
 
 let usersCount = 0;
 
@@ -104,7 +108,7 @@ io.on("connection",function(socket){
 
   socket.on("new_task",function(data){
     if (data.userId){
-      let userSocket = sockets(data.userId);
+      let userSocket = sockets[data.userId];
       if (!userSocket) return;
       userSocket.emit(new_task,data);
     }

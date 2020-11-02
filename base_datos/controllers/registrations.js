@@ -13,6 +13,6 @@ module.exports = {
       res.json(result);
     }).catch(err=>{
       res.json(err);
-    })
+    });
   }
 };

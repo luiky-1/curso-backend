@@ -46,7 +46,7 @@ module.exports = {
     }).catch(err=>{
       console.log(err);
       res.json(err);
-    });
+    })
   },
   update: function(req,res){
     Task.update({description: req.body.description},{
@@ -55,7 +55,7 @@ module.exports = {
       }
     }).then(function(response){
       res.redirect("/tasks/"+req.params.id);
-    });
+    })
   },
   new: function(req,res){
     res.render("tasks/new");

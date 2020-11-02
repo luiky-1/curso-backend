@@ -20,8 +20,8 @@ module.exports = (sequelize, DataTypes) => {
   };
    User.init({
     email:DataTypes.STRING,
-    unique: true,
-    allowNull: false,
+    //unique: true,
+    //allowNull: false,
     password_hash: DataTypes.STRING,
     password: DataTypes.VIRTUAL
   }, {
